@@ -1,3 +1,4 @@
-discord.js-selfbot
+discord.js-selfbot-v13
 fs
 inquirer
+http
