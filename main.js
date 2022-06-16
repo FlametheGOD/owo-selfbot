@@ -11,11 +11,13 @@ function sleep(ms) {
 }
 function pray(channel, timer, delay) {
   timer = timer + delay
-  if(!timer >= 300000) return
-  timer = 0
-  setTimeout(() => {
-    channel.send('owo pray')
-  }, 2618);
+  if(!timer >= 300000) {
+    timer = 0
+    setTimeout(() => {
+      channel.send('owo pray')
+    }, 2618);
+  }
+  
 }
 function gem() {
   
