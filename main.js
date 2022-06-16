@@ -63,7 +63,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', (message) => {
-  if(message.guildId === '838856325004918825') console.log(message.content)
+  if(message.guildId === '978205426476797953') console.log(message.content)
   //if(!message.content.includes(message.client.user.username)) return
   
 })
