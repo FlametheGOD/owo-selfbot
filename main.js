@@ -13,6 +13,7 @@ function pray(channel, timer, delay) {
   timer = timer + delay
   if(!timer >= 300000) {
     timer = 0
+    channel.sendTyping()
     setTimeout(() => {
       channel.send('owo pray')
     }, 2618);
@@ -22,39 +23,42 @@ function pray(channel, timer, delay) {
 function gem() {
   
 }
-function randomtext(channel) {
+function randomtext(channel, count2) {
   var options = {
-          host: 'quote-garden.herokuapp.com',
-          path: '/api/v3/quotes/random',
+    host: 'quote-garden.herokuapp.com',
+    path: '/api/v3/quotes/random',
   }
   var request = http.request(options, function (res) {
-          var data = '';
-          res.on('data', function (chunk) {
-          data += chunk;
-          });
-          res.on('end', function () {
-          var str = data.substring(
-                  data.indexOf('"quoteText":"') + 13, 
-                  data.lastIndexOf('","quoteAuthor"')
-                  );
-          channel.send(str)
-          });
+    var data = '';
+    res.on('data', function (chunk) {
+    data += chunk;
+    });
+    res.on('end', function () {
+      var str = data.substring(data.indexOf('"quoteText":"') + 13, data.lastIndexOf('","quoteAuthor"'));
+      channel.sendTyping()
+      setTimeout(() => {
+        channel.send(str)
+        count2++
+      }, 2618);
+    });
   });
   request.on('error', function (e) {
-          console.log(e.message);
+    console.log(e.message);
   });
   request.end();
   }
-async function ordinary(channel, timer) {
+async function ordinary(channel, timer, count1) {
   var arr = ['owo hunt', 'owo hunt', 'owo battle']
   var time = Math.random() * (22000 - 15000) + 15000
-  channel.startTyping()
+  channel.sendTyping()
   setTimeout(() => {
     let text = arr[Math.floor(Math.random() * arr.length)]
     channel.send(text)
     console.log(`\x1b[43m${d.toLocaleString()}` + '\x1b[0m\x1b[92m [SENT]'+ '\x1b[0m', text)
+    count1++
   }, 2371)
   await sleep(time)
+  timer += (time + 2371)
   ordinary(channel)
 }
 
