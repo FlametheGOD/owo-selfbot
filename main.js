@@ -105,7 +105,7 @@ async function webhook(channel) {
   const webhookClient = new Discord.WebhookClient({url: config.webhookurl})
   if(config.webhookurl.length !== 0) {
     await webhookClient.send({
-      content: `${config.userping ? `<@${config.userping}>, ` : ""}I found a captcha in channel <#${channel.id}>`,
+      content: `${config.userping.length === 0 ? "" : `<@${config.userping}>, `}I found a captcha in channel <#${channel.id}>`,
       username: 'Captcha Detector',
       avatarURL: client.user.displayAvatarURL({dynamics: true})
     })
