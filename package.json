@@ -10,9 +10,8 @@
   "author": "Eternity_VN",
   "license": "ISC",
   "dependencies": {
-    "discord.js-selfbot-v13": "^2.3.2",
+    "discord.js-selfbot-v13": "^2.3.42",
     "fs": "^0.0.1-security",
-    "http": "^0.0.1-security",
-    "inquirer": "^8.2.2"
+    "http": "^0.0.1-security"
   }
 }
