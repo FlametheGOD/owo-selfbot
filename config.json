@@ -1,7 +1,7 @@
 {
     "token":"",
-    "channelID":"917183349276180491",
-    "webhookurl":"https://discord.com/api/webhooks/989573487356158024/BOlY96wAAfuvEiSReIBo9PKXavRR4vq9w4okfXmNM0nWwzjSK-EaJzq6vbimp_6ylJJv",
+    "channelID":"",
+    "webhookurl":"",
     "userping": "",
     "autopray":true,
     "autosendrandomtext":true,
