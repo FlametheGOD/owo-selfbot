@@ -21,8 +21,6 @@ Use the package manager [npm](https://www.npmjs.com/) to install the following p
 
 ```bash
 npm install discord.js-selfbot-v13
-npm install fs
-npm install http
 ```
 __Note:__ You can install them automatically by running [setup.cmd](https://github.com/LongAKolangle/owo-selfbot/blob/main/setup.cmd).
 ## Get Account Token

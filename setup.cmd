@@ -1,1 +1,1 @@
-npm install discord.js-selfbot-v13 fs
+npm install discord.js-selfbot-v13
