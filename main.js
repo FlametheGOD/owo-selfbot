@@ -50,6 +50,7 @@ async function gem(channel) {
     channel.sendTyping()
     await sleep(ranInt(1900, 2600))
     channel.send('owo inv')
+    log("sent","owo inv")
     channel.awaitMessages({filter, max: 1, time: 10000, errors: ["time"]})
       .then(async collection => {
         var inventory, gem1, gem2, gem3, lootbox=false
