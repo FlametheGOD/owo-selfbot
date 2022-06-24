@@ -30,17 +30,17 @@ function log(type, content) {
 }
 
 async function pray(channel) {
-  if(timer >= 360000 || totalcmd <= 2) {
-    try {
+  try {
+    if(timer >= 360000 || totalcmd <= 2) {
       timer = 0
       channel.sendTyping()
       await sleep(ranInt(2000, 3500))
       channel.send('owo pray')
       log("sent","owo pray")
       totalcmd++
-    } catch (error) {
-      log("", error)
     }
+  } catch (error) {
+    log("", error)
   }
 }
 
