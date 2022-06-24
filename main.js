@@ -30,57 +30,54 @@ function log(type, content) {
 }
 
 async function pray(channel) {
-  try {
-    if(timer >= 360000 || totalcmd <= 2) {
-      timer = 0
-      channel.sendTyping()
-      await sleep(ranInt(2000, 3500))
-      channel.send('owo pray')
-      log("sent","owo pray")
-      totalcmd++
-    }
-  } catch (error) {
-    log("", error)
+  if(timer >= 360000 || totalcmd <= 2) {
+    timer = 0
+    channel.sendTyping()
+    await sleep(ranInt(2000, 3500))
+    channel.send('owo pray')
+    log("sent","owo pray")
+    totalcmd++
   }
 }
 
 async function gem(channel) {
-  try {
-    var filter = m => m.author.id === '408785106942164992' && m.content.includes(m.client.user.username) && m.content.includes('Inventory')
+  var filter = m => m.author.id === '408785106942164992' && m.content.includes(m.client.user.username) && m.content.includes('Inventory') && m.content.match(/Inventory|Please wait |Please slow down~/)
+  channel.sendTyping()
+  await sleep(ranInt(1900, 2600))
+  channel.send('owo inv')
+  log("sent","owo inv")
+  channel.awaitMessages({filter, max: 1, time: 10000, errors: ["time"]})
+  .catch((e) => {log("", e)})
+  .then(async collection => {
+    if(collection.first().content.match(/Please wait |Please slow down~/)) {
+      await sleep(ranInt(8100, 9800))
+      return await gem(channel)
+    }
+    var inventory, gem1, gem2, gem3, lootbox=false
+    inventory = collection.first().content.split("`")
+    gem1 = inventory.filter(i => i.match(/^05[1-7]$/))
+    gem2 = inventory.filter(i => i.match(/^06[5-9]|07[0-1]$/))
+    gem3 = inventory.filter(i => i.match(/^07[2-8]$/))
+    inventory.filter(i => i.match(/^050$/)).length !== 0 ? lootbox = true : lootbox = false
+    gem1.length === 0 ? outofgem1 = true : outofgem1 = false
+    gem2.length === 0 ? outofgem2 = true : outofgem2 = false
+    gem3.length === 0 ? outofgem3 = true : outofgem3 = false
+    log("info", `\x1b[0mFound ${gem1.length + gem2.length + gem3.length} gems in inventory`)
+    if(lootbox) {
+      channel.sendTyping()
+      await sleep(ranInt(2300, 3100))
+      channel.send('owo lootbox all')
+      log("sent",'owo lootbox all')
+      await sleep(ranInt(8100, 9800))
+      return await gem(channel)
+    }
+    if(outofgem1 && outofgem2 && outofgem3 && !lootbox) return
     channel.sendTyping()
-    await sleep(ranInt(1900, 2600))
-    channel.send('owo inv')
-    log("sent","owo inv")
-    channel.awaitMessages({filter, max: 1, time: 10000, errors: ["time"]})
-      .then(async collection => {
-        var inventory, gem1, gem2, gem3, lootbox=false
-        inventory = collection.first().content.split("`")
-        gem1 = inventory.filter(i => i.match(/^05[1-7]$/))
-        gem2 = inventory.filter(i => i.match(/^06[5-9]|07[0-1]$/))
-        gem3 = inventory.filter(i => i.match(/^07[2-8]$/))
-        inventory.filter(i => i.match(/^050$/)).length !== 0 ? lootbox = true : lootbox = false
-        gem1.length === 0 ? outofgem1 = true : outofgem1 = false
-        gem2.length === 0 ? outofgem2 = true : outofgem2 = false
-        gem3.length === 0 ? outofgem3 = true : outofgem3 = false
-        log("info", `\x1b[0m Found ${gem1.length + gem2.length + gem3.length} gems in inventory`)
-        if(lootbox) {
-          channel.sendTyping()
-          await sleep(ranInt(2300, 3100))
-          channel.send('owo lootbox all')
-          log("sent",'owo lootbox all')
-          await sleep(ranInt(5100, 7800))
-          return await gem(channel)
-        }
-        if(outofgem1 && outofgem2 && outofgem3 && !lootbox) return
-        channel.sendTyping()
-        await sleep(ranInt(5300, 6800))
-        channel.send(`owo use ${gem1.length != 0 ? `${Math.max(...gem1)} ` : ""}${gem2.length != 0 ? `${Math.max(...gem2)} ` : ""}${gem3.length != 0 ? `${Math.max(...gem3)}` : ""}`)
-        log("sent", `owo use ${gem1.length != 0 ? `${Math.max(...gem1)} ` : ""}${gem2.length != 0 ? `${Math.max(...gem2)} ` : ""}${gem3.length != 0 ? `${Math.max(...gem3)}` : ""}`)
-        totalcmd++
-      })
-  } catch (error) {
-    log("",error)
-  }
+    await sleep(ranInt(5300, 6800))
+    channel.send(`owo use ${gem1.length != 0 ? `${Math.max(...gem1)} ` : ""}${gem2.length != 0 ? `${Math.max(...gem2)} ` : ""}${gem3.length != 0 ? `${Math.max(...gem3)}` : ""}`)
+    log("sent", `owo use ${gem1.length != 0 ? `${Math.max(...gem1)} ` : ""}${gem2.length != 0 ? `${Math.max(...gem2)} ` : ""}${gem3.length != 0 ? `${Math.max(...gem3)}` : ""}`)
+    totalcmd++
+  })
 }
 
 async function randomtext(channel) {
@@ -107,55 +104,50 @@ async function randomtext(channel) {
       log("",e.message);
     });
     request.end();
-  }catch(e) {log("",String(e.stack))}
+  } catch(e) {log("",String(e.stack))}
 }
 
 async function webhook(channel) {
-  try {
-    const webhookClient = new Discord.WebhookClient({url: config.webhookurl})
-    if(config.webhookurl.length !== 0) {
-      await webhookClient.send({
-        content: `${config.userping.length === 0 ? "" : `<@${config.userping}>, `}I found a captcha in channel <#${channel.id}>`,
-        username: 'Captcha Detector',
-        avatarURL: client.user.displayAvatarURL({dynamics: true})
-      })
-    }
-    log("alert", "FOUND A CAPTCHA ON CHANNEL: " + channel.name)
-    console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
-    console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
-  } catch (error) {
-    log("", error)
+  const webhookClient = new Discord.WebhookClient({url: config.webhookurl})
+  if(config.webhookurl.length !== 0) {
+    await webhookClient.send({
+      content: `${config.userping.length === 0 ? "" : `<@${config.userping}>, `}I found a captcha in channel <#${channel.id}>`,
+      username: 'Captcha Detector',
+      avatarURL: client.user.displayAvatarURL({dynamics: true})
+    })
   }
+  log("alert", "FOUND A CAPTCHA ON CHANNEL: " + channel.name)
+  console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
+  console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
 }
 
 async function ordinary(channel) {
-  try {
-    var filter = m => m.author.id === '408785106942164992' && m.content.includes(m.client.user.username) && m.content.match(/hunt is empowered by| spent 5 \S{9} and caught a /)
-    var arr = ['owo hunt', 'owo hunt', 'owo battle']
-    var time = Math.random() * (22000 - 15000) + 15000
-    let text = arr[Math.floor(Math.random() * arr.length)]
-    channel.sendTyping()
-    await sleep(ranInt(1600, 2170))
-    channel.send(text)
-    totalcmd++
-    log("sent", text)
-    if(config.autousegem && text === 'owo hunt') {
-      channel.awaitMessages({ filter: filter, max: 1, time: 10000, errors: ["time"] })
-      .then(async (collection) => {
-        var content = collection.first().content
-        if(!content.includes("gem1") && outofgem1) return 
-        if(!content.includes("gem3") && outofgem2) return 
-        if(!content.includes("gem4") && outofgem3) return 
-        await gem(channel)
-      });
-    }
-    await sleep(time)
-    if(config.autopray) await pray(channel)
-    if(config.autosendrandomtext) await randomtext(channel)
-    await ordinary(channel)
-  } catch (error) {
-    log("", error)
+  var filter = m => m.author.id === '408785106942164992' && m.content.includes(m.client.user.username) && m.content.match(/hunt is empowered by| spent 5 \S{9} and caught a | Please wait |Please slow down~/)
+  var arr = ['owo hunt', 'owo battle', 'owo hunt']
+  var time = Math.random() * (22000 - 15000) + 15000
+  let text = arr[Math.floor(Math.random() * arr.length)]
+  channel.sendTyping()
+  await sleep(ranInt(1600, 2170))
+  channel.send(text)
+  totalcmd++
+  log("sent", text)
+  if(config.autousegem && text === 'owo hunt') {
+    channel.awaitMessages({ filter: filter, max: 1, time: 10000, errors: ["time"] })
+    .catch((e) => {log("", e)})
+    .then(async (collection) => {
+      var content = collection.first().content
+      if(content.match(/Please wait |Please slow down~/)) return
+      if(!content.includes("gem1") && outofgem1) return 
+      if(!content.includes("gem3") && outofgem2) return 
+      if(!content.includes("gem4") && outofgem3) return 
+      if(content.includes("gem1") && content.includes("gem3") && content.includes("gem4")) return
+      await gem(channel)
+    });
   }
+  await sleep(time)
+  if(config.autopray) await pray(channel)
+  if(config.autosendrandomtext) await randomtext(channel)
+  await ordinary(channel)
 }
 
 client.on('ready', () => {
@@ -169,6 +161,17 @@ client.on('messageCreate', async (message) => {
     await webhook(message.channel)
     process.exit().catch(e => log("", String(e.stack)))
   }
+});
+process.on('unhandledRejection', (err) => {
+  log("", err)
+});
+process.on("SIGINT", async function () {
+  await sleep(1000)
+  console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
+  await sleep(1000)
+  console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
+  await sleep(1000)
+  process.exit();
 });
 
 client.login(config.token);
