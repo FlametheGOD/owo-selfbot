@@ -1,7 +1,6 @@
 const Discord = require('discord.js-selfbot-v13');
 const client = new Discord.Client({intents: [32767]})
 const http = require('http');
-const d = new Date()
 const config = require('./config.json')
 var timer = 0, totalcmd = 0, totaltext = 0, outofgem1 = false, outofgem2 = false, outofgem3 = false
 
@@ -16,12 +15,7 @@ function ranInt(min, max) {
 
 function log(type, content) {
   console.log(
-    `\x1b[43m${(d.getDate() < 10 ? "0":"") + d.getDate() + "/" + 
-    (d.getMonth() < 10 ? "0":"") + (d.getMonth()+1) + "/" + 
-    d.getFullYear() + " " + 
-    (d.getHours() < 10 ? "0":"") + d.getHours() + ":" + 
-    (d.getMinutes() < 10 ? "0":"") + d.getMinutes()+ ":" + 
-    (d.getSeconds() < 10 ? "0":"") + d.getSeconds()}${type === "info" ? "\x1b[0m\x1b[34m [INFO]" 
+    `\x1b[43m${new Date().toLocaleTimeString('VN')}${type === "info" ? "\x1b[0m\x1b[34m [INFO]" 
     : type === "sent" ? "\x1b[0m\x1b[92m [SENT]" 
     : type === "alert" ? "\x1b[0m\x1b[31m [ALERT]" 
     : "\x1b[0m\x1b[93m [UNKNOWN]"}` +
@@ -122,7 +116,7 @@ async function webhook(channel) {
 }
 
 async function ordinary(channel) {
-  var filter = m => m.author.id === '408785106942164992' && m.content.includes(m.client.user.username) && m.content.match(/hunt is empowered by| spent 5 \S{9} and caught a | Please wait |Please slow down~/)
+  var filter = m => m.author.id === '408785106942164992' && m.content.includes(m.client.user.username) && m.content.match(/hunt is empowered by| spent 5 <:cowoncy:\d{18}> and caught a | Please wait |Please slow down~/)
   var arr = ['owo hunt', 'owo battle', 'owo hunt']
   var time = Math.random() * (22000 - 15000) + 15000
   let text = arr[Math.floor(Math.random() * arr.length)]
@@ -131,7 +125,7 @@ async function ordinary(channel) {
   channel.send(text)
   totalcmd++
   log("sent", text)
-  if(config.autousegem && text === 'owo hunt') {
+  if(config.autousegem && !outofgem1 && !outofgem2 && !outofgem3 && text === 'owo hunt') {
     channel.awaitMessages({ filter: filter, max: 1, time: 10000, errors: ["time"] })
     .catch((e) => {log("", e)})
     .then(async (collection) => {

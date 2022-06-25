@@ -1,9 +1,13 @@
-{
-    "token":"",
-    "channelID":"",
-    "webhookurl":"",
-    "userping": "",
-    "autopray":true,
-    "autosendrandomtext":true,
-    "autousegem":true
-}
+[
+    {
+        "id":"0",
+        "name":"",
+        "token":"",
+        "channelID":"",
+        "webhookurl":"",
+        "userping": "",
+        "autopray":false,
+        "autosendrandomtext":false,
+        "autousegem":false
+    }
+]
