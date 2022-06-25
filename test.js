@@ -162,12 +162,9 @@ process.on('unhandledRejection', (err) => {
     log("PROMISE:ERROR", err.stack);
 });
 process.on("SIGINT", async function () {
-    await sleep(1000)
     console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
-    await sleep(1000)
     console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
-    await sleep(1000)
-    process.exit();
+    process.exit(1);
 });
 /** Copyright Github: aiko-chan-ai */
 const showPopup = (notif) => {
@@ -175,7 +172,7 @@ const showPopup = (notif) => {
 }
 process.on('SIGHUP', () => {
     showPopup(`Application close, Total command sent: ${totalcmd} | Total text sent: ${totaltext}`);
-    process.exit();
+    process.exit(1);
 });
 // Appdata path
 const FolderPath = path.resolve(process.env.LOCALAPPDATA, 'owoself');
