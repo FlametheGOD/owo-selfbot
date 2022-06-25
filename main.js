@@ -1,9 +1,9 @@
 const Discord = require('discord.js-selfbot-v13');
 const client = new Discord.Client({intents: [32767]})
 const http = require('http');
-const config = require('./config.json')
+const config = require('./config.json')[0]
 var timer = 0, totalcmd = 0, totaltext = 0, outofgem1 = false, outofgem2 = false, outofgem3 = false
-
+console.log(config)
 function sleep(ms) {
   timer += ms
   return new Promise(resolve => setTimeout(resolve, ms));
