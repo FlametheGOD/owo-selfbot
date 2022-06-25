@@ -1,7 +1,7 @@
 const Discord = require('discord.js-selfbot-v13');
 const client = new Discord.Client({intents: [32767]})
 const http = require('http');
-const config = require('./config.json')[0]
+const config = require('./config.json')
 var timer = 0, totalcmd = 0, totaltext = 0, outofgem1 = false, outofgem2 = false, outofgem3 = false
 console.log(config)
 function sleep(ms) {
@@ -153,18 +153,17 @@ client.on('ready', () => {
 client.on('messageCreate', async (message) => {
   if(message.content.includes(message.client.user.username) && message.content.match(/that you are.{1,3}human!/gm)) {
     await webhook(message.channel)
-    process.exit().catch(e => log("", String(e.stack)))
+    console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
+    console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
+    process.exit()
   }
 });
 process.on('unhandledRejection', (err) => {
   log("", err)
 });
 process.on("SIGINT", async function () {
-  await sleep(1000)
   console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
-  await sleep(1000)
   console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
-  await sleep(1000)
   process.exit();
 });
 
