@@ -1,2 +1,0 @@
-node inquirer.js
-pause
