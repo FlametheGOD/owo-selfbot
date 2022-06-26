@@ -1,2 +1,0 @@
-discord.js-selfbot-v13
-#NOTE: YOU CAN USE setup.cmd TO INSTALL THEM AUTOMATICALLY

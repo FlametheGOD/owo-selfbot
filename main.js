@@ -1,25 +1,29 @@
+process.title = "Tool Farm OwO by Eternity_VN & aiko-chan-ai";
+const inquirer = require('inquirer');
+const fs = require('fs');
+const path = require('path');
 const Discord = require('discord.js-selfbot-v13');
-const client = new Discord.Client({intents: [32767]})
 const http = require('http');
-const config = require('./config.json')
-var timer = 0, totalcmd = 0, totaltext = 0, outofgem1 = false, outofgem2 = false, outofgem3 = false
-console.log(config)
+var timer = 0, totalcmd = 0, totaltext = 0, outofgem1 = false, outofgem2 = false, outofgem3 = false, config = {};
+
+console.clear()
+
 function sleep(ms) {
   timer += ms
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 function ranInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min)
 }
 
-function log(type, content) {
+function log(type = 'UNKNOWN', content) {
   console.log(
-    `\x1b[43m${new Date().toLocaleTimeString('VN')}${type === "info" ? "\x1b[0m\x1b[34m [INFO]" 
-    : type === "sent" ? "\x1b[0m\x1b[92m [SENT]" 
-    : type === "alert" ? "\x1b[0m\x1b[31m [ALERT]" 
-    : "\x1b[0m\x1b[93m [UNKNOWN]"}` +
-    `\x1b[0m ${content}`
+      `\x1b[43m${new Date().toLocaleTimeString('VN')}${type === "info" ? "\x1b[0m\x1b[34m [INFO]"
+          : type === "sent" ? "\x1b[0m\x1b[92m [SENT]"
+              : type === "alert" ? "\x1b[0m\x1b[31m [ALERT]"
+                  : `\x1b[0m\x1b[93m [${type}]`}` +
+      `\x1b[0m ${content}`
   )
 }
 
@@ -81,10 +85,10 @@ async function randomtext(channel) {
       path: '/api/v3/quotes/random',
     }
     var request = http.request(options, function (res) {
-      var data = '';
+      var data = ''
       res.on('data', function (chunk) {
-      data += chunk;
-      });
+      data += chunk
+      })
       res.on('end', async function () {
         const json = JSON.parse(data)
         if(json["statusCode"] !== 200) return
@@ -92,12 +96,12 @@ async function randomtext(channel) {
         await sleep(ranInt(3400, 5600))
         channel.send(json["data"][0]["quoteText"])
         totaltext++
-      });
-    });
+      })
+    })
     request.on('error', function (e) {
-      log("",e.message);
-    });
-    request.end();
+      log("",e.message)
+    })
+    request.end()
   } catch(e) {log("",String(e.stack))}
 }
 
@@ -136,7 +140,7 @@ async function ordinary(channel) {
       if(!content.includes("gem4") && outofgem3) return 
       if(content.includes("gem1") && content.includes("gem3") && content.includes("gem4")) return
       await gem(channel)
-    });
+    })
   }
   await sleep(time)
   if(config.autopray) await pray(channel)
@@ -144,27 +148,254 @@ async function ordinary(channel) {
   await ordinary(channel)
 }
 
-client.on('ready', () => {
-  console.log('\x1b[94m%s\x1b[0m', `Logged in as ${client.user.tag}!`);
-  const channel = client.channels.cache.get(config.channelID)
-  ordinary(channel)
-});
-
-client.on('messageCreate', async (message) => {
-  if(message.content.includes(message.client.user.username) && message.content.match(/that you are.{1,3}human!/gm)) {
-    await webhook(message.channel)
-    console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
-    console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
-    process.exit()
-  }
-});
 process.on('unhandledRejection', (err) => {
-  log("", err)
-});
+  log("PROMISE.ERROR", err)
+})
+
 process.on("SIGINT", async function () {
   console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
   console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
-  process.exit();
-});
+  process.exit(1)
+})
 
-client.login(config.token);
+const FolderPath = path.resolve(__dirname, 'data');
+const FilePath = path.resolve(FolderPath, 'config.json');
+
+if (!fs.existsSync(FolderPath)) {
+  fs.mkdirSync(FolderPath);
+  fs.writeFileSync(FilePath, '{}', 'utf8');
+};
+
+/** Copyright Github: aiko-chan-ai */
+const fileData = JSON.parse(fs.existsSync(FilePath) ? fs.readFileSync(FilePath, 'utf8') : '{}')
+const Form = (token, guildID, channelID, webhookURL = "", pingWhenCaptchaUserId = "", pray = true, spamchat = true, useGem = true, tag) => {
+  return {
+      token,
+      guildID,
+      channelID,
+      webhookurl: webhookURL,
+      userping: pingWhenCaptchaUserId,
+      autopray: pray,
+      autosendrandomtext: spamchat,
+      autousegem: useGem,
+      user: tag
+  }
+}
+
+const tokenCheck = (token) => {
+  return token.match(/^mfa\.[\w-]{84}$|^[\w-]{24}\.[\w-]{6}\.[\w-]{27}$/) ? true : 'Invalid Token'
+}
+
+const token_question = (token) => {
+  const res = {
+      type: 'input',
+      name: 'answer',
+      validate: tokenCheck,
+      message: "Enter your token: ",
+  }
+  if (token && tokenCheck(token)) res.default = () => {
+    return token
+  }
+  return res;
+}
+
+const list = () => {
+  return {
+    type: 'list',
+    name: 'answer',
+    message: 'Select the account you want to log in to',
+    choices: [...new Set(Object.values(fileData).map(obj => obj.user)), 'New Account (Token)', 'New Account (QR Code Login)'],
+    pageSize : 10,
+    loop : false,
+    filter(value) {
+        const obj = Object.values(fileData).find(val => val.user == value);
+        if (obj) return Buffer.from(obj.token.split('.')[0], 'base64').toString();
+        else return value.includes('Token') ? 0 : 1;
+    },
+  }
+}
+
+const listGuild = (client, guildIdCache) => {
+  const obj = {
+      type: 'list',
+      name: 'answer',
+      message: 'Choose the server you want to start farming OwO (id-name)',
+      choices: client.guilds.cache.map(guild => `${guild.id}-${guild.name}`),
+      pageSize : 10,
+      loop : false,
+      filter(value) {
+        return value.split('-')[0];
+      },
+  }
+  if (guildIdCache && client.guilds.cache.get(guildIdCache)) {
+    obj.default = () => {
+      return client.guilds.cache.get(guildIdCache).id + '-' + client.guilds.cache.get(guildIdCache).name;
+    }
+  }
+  return obj;
+}
+
+const listChannel = (client, guildId, channelIdCache) => {
+  const guild = client.guilds.cache.get(guildId);
+  const channelList = guild.channels.cache.filter(c => ['GUILD_TEXT', 'GUILD_NEWS'].includes(c.type) && c.permissionsFor(guild.me).has('VIEW_CHANNEL') && c.permissionsFor(guild.me).has('SEND_MESSAGES'))
+  const obj = {
+      type: 'list',
+      name: 'answer',
+      message: 'Select the channel you want to start farming OwO (id-name)',
+      choices: [...channelList.map(c => `${c.id}-${c.name}`), 'Back to guilds select'],
+      pageSize : 10,
+      loop : false,
+      filter(value) {
+          return value.split('-')[0];
+      },
+  }
+  if (channelIdCache && channelList.get(channelIdCache)) {
+      obj.default = () => {
+          return channelList.get(channelIdCache)?.id + '-' + channelList.get(channelIdCache)?.name;
+      }
+  }
+  return obj;
+}
+
+const trueFalse = (question, defaultValue = true) => {
+  return {
+      type: 'confirm',
+      name: 'answer',
+      message: question,
+      default: defaultValue,
+  };
+}
+
+const checkWebhook = (webhookCache) => {
+  const res = {
+    type: 'input',
+    name: 'answer',
+    message: "Enter Webhook Link If You Want It To Ping You If OwO Asked Captcha, Otherwise Press Enter: ",
+    validate: async (input) => {
+      if (!input) return true;
+      else return input.match(/(^.*(discord|discordapp)\.com\/api\/webhooks\/([\d]+)\/([a-zA-Z0-9_-]+)$)|^$/gm) ? true : "Invalid Webhook"
+    },
+  }
+  if (webhookCache) res.default = () => {
+    return webhookCache;
+  }
+  return res;
+}
+
+const userPing = (userPingCache) => {
+  const res = {
+    type: 'input',
+    name: 'answer',
+    message: "Enter User ID You Want To Ping, Otherwise Press Enter: ",
+    validate: async (input) => {
+      if (!input) return true;
+      else return /^\d{17,19}$/.test(input) ? true : "Invalid User ID"
+    },
+  }
+  if (userPingCache) res.default = () => {
+    return userPingCache;
+  }
+  return res;
+}
+
+const getResult = (question, log) => {
+  console.clear();
+  if (log) console.log(log);
+  return new Promise((resolve) => {
+    inquirer.prompt([
+      question,
+    ]).then(res => resolve(res.answer));
+  })
+}
+
+const loginCheck = (token) => {
+  const client = new Discord.Client({
+      checkUpdate: false,
+  });
+  return new Promise(async (ok) => {
+      client.once('ready', () => {
+          ok(client);
+      });
+      try {
+          await token ? client.login(token) : client.QRLogin(); //token ? client.login(token) : await client.QRLogin();
+      } catch {
+          ok('Token invalid, Exiting ...');
+      }
+  })
+}
+
+(async () => {
+  if (JSON.stringify(fileData) == '{}') {
+    const notif = `Copyright 2022 © Eternity_VN x aiko-chan-ai [Version 1.0.1]
+From Github with love ❤
+` + "\x1b[4m[EN]\x1b[0m" + `
+By Using This Module, You Agree To Our Terms Of Use And Accept The Risks That May Be Taken.
+Please Note that We Do Not Take Any Responsibility For Accounts Banned Due To Using Our Tools
+` + "\x1b[4m[VI]\x1b[0m" + `
+Đồng Nghĩa Với Việc Sử Dụng Module Này, Bạn Đồng Ý Với Các Điều Khoản Sử Dụng Và Chấp Nhận Các Rủi Ro Có Thể Xảy Đến
+Xin Lưu Ý Rằng Chúng Tôi Không Chịu Bất Kỳ Trách Nhiệm Nào Đối Với Các Tài khoản Bị Cấm Do Sử Dụng Công Cụ Này
+`
+    const res = await getResult(trueFalse('Do you still want to continue?'), notif);
+    if (!res) {
+      console.log('Exiting...')
+      process.exit(1);
+    }
+  }
+  const result = await getResult(list());
+  let cache, client;
+  if (result === 0) {
+    const token = await getResult(token_question());
+    log("CHECK", 'Token checking ...')
+    client = await loginCheck(token);
+    if (typeof client == 'string') {
+        log("ERROR",client);
+        process.exit(1);
+    }
+  } else if(result === 1) {
+    client = await loginCheck();
+    if (typeof client == 'string') {
+      log("ERROR",client);
+      process.exit(1);
+    }
+  } else {
+    const obj = fileData[`${result}`];
+    cache = obj;
+    log("CHECK", 'Token checking ...')
+    client = await loginCheck(obj.token);
+    if (typeof client == 'string') {
+        log("ERROR",client);
+        process.exit(1);
+    }
+  }
+  let guildId = await getResult(listGuild(client, cache?.guildID));
+  let channelID = await getResult(listChannel(client, guildId, cache?.channelID));
+  while(channelID.startsWith('Back')) {
+      guildId = await getResult(listGuild(client, cache?.guildID));
+      channelID = await getResult(listChannel(client, guildId, cache?.channelID));
+  }
+  const webhookURL = await getResult(checkWebhook(cache?.webhookurl));
+  const userping = webhookURL ? await getResult(userPing(cache?.userping)) : undefined;
+  const pray = await getResult(trueFalse('Toggle Automatically Send Pray: ', cache?.autopray));
+  const spam = await getResult(trueFalse('Toggle Automatically Send Random Text To Level Up:', cache?.autosendrandomtext));
+  const gem = await getResult(trueFalse('Toggle Automatically Use Gems: ', cache?.autousegem));
+  config = Form(client.token, guildId, channelID, webhookURL, userping, pray, spam, gem, client.user.tag)
+  fileData[`${client.user.id}`] = config
+  fs.writeFileSync(FilePath, JSON.stringify(fileData), 'utf8')
+  log("info", `File Saved To: ${FilePath}`)
+
+  client.on('ready', () => {
+    console.log('\x1b[94m%s\x1b[0m', `Logged in as ${client.user.tag}!`)
+    const channel = client.channels.cache.get(config.channelID)
+    ordinary(channel)
+  })
+
+  client.on('messageCreate', async (message) => {
+    if(message.content.includes(message.client.user.username) && message.content.match(/that you are.{1,3}human!/gm)) {
+      await webhook(message.channel)
+      console.log("\x1b[92mTotal command sent: \x1b[0m" + totalcmd)
+      console.log("\x1b[92mTotal text sent: \x1b[0m" + totaltext)
+      process.exit(1)
+    }
+  })
+  client.emit('ready')
+})()
