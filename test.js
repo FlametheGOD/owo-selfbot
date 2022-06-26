@@ -360,7 +360,7 @@ ${chalk.bgGreenBright.bold('[EN]')}
 ${chalk.redBright(`I don't take any responsibility for blocked Discord accounts that used this module.
 Using this on a user account is prohibited by the Discord TOS and can lead to the account block.`)}
 ${chalk.bgYellowBright.bold('[VI]')}
-${chalk.redBright(`Tôi không chịu bất kỳ trách nhiệm nào đối với các tài khoản Discord bị chặn đã sử dụng module này.
+${chalk.redBright(`Chúng tôi không chịu bất kỳ trách nhiệm nào đối với các tài khoản Discord bị chặn đã sử dụng module này.
 Sử dụng tập lệnh này trên tài khoản người dùng bị cấm bởi Discord TOS và có thể dẫn đến khóa tài khoản.`)}
         `
         const res = await getResult(trueFalse('Do you still want to continue?'), notif);
