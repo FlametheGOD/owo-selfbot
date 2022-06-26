@@ -183,7 +183,7 @@ const Form = (token, guildID, channelID, webhookURL = "", pingWhenCaptchaUserId 
 }
 
 const tokenCheck = (token) => {
-  return token.match(/^mfa\.[\w-]{84}$|^[\w-]{24}\.[\w-]{6}\.[\w-]{27}$/) ? true : 'Invalid Token'
+  return token.split('.').length == 3 ? true : 'Invalid Token'
 }
 
 const token_question = (token) => {
